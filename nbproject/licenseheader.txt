@@ -1,0 +1,9 @@
+<#if licenseFirst??>
+${licenseFirst}
+</#if>
+${licensePrefix}la licence de ce projet est accorder 
+${licensePrefix}a l'entreprise bbs benhaddou brother's software
+${licensePrefix}marque deposer auprés des autorités responsable${licensePrefix}
+<#if licenseLast??>
+${licenseLast}
+</#if>
