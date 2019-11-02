@@ -1279,7 +1279,6 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
         String sql_vers = "SELECT MONT FROM vers" + f() 
                     + " WHERE ida =" + numeroLabel.getText().substring(2);
         JDBCAdapter montant = JDBCAdapter.connect();
-        System.out.println(sql_vers);
         montant.executeQuery(sql_vers);
         BigDecimal res = (BigDecimal)montant.getValueAt(0, 0);
         result = res.doubleValue();
