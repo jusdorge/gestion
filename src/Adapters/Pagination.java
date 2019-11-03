@@ -44,16 +44,15 @@ public class Pagination implements Printable {
     
     private void initTextLines(int linesPerPage) {
         if (textLines == null) {
-
+            // the model is bigger then the page length
             if (model.getRowCount() > linesPerPage){
                 pageCount = model.getRowCount() /
                                    (linesPerPage - headerLines);
                 int textLinesCount = model.getRowCount() + 
                                 headerLines * (pageCount + 1) +
                                 footerLines ;
-                System.out.println(textLinesCount);
                 textLines = new Object[textLinesCount][columns.length];
-                int numBreaks = (textLines.length-1)/linesPerPage;
+                int numBreaks = (textLinesCount-1)/linesPerPage;
                 pageBreaks = new int[numBreaks];
                 for (int b=0; b<numBreaks; b++) {
                     pageBreaks[b] = (b+1)*linesPerPage; 
@@ -62,15 +61,16 @@ public class Pagination implements Printable {
                 for (int pageIndex = 0; pageIndex < pageCount + 1; pageIndex++){
                     int start = (pageIndex == 0) ? 0 : pageBreaks[pageIndex-1];
                     int end   = (pageIndex == pageBreaks.length)    
-                             ? textLines.length : pageBreaks[pageIndex];                            
+                             ? textLinesCount : pageBreaks[pageIndex];                            
                     headerDocument(start);
                     headerTable(headerLines + 1 + start);
-                    
                     for (int line=start + headerLines + 2; line<end; line++){
-                        fillLine(line,lineNumber);
+                        fillLine(line-1,lineNumber);
                         lineNumber += 1;
                     }
                 }
+                //buttomTable(textLinesCount );
+                
             }else{
                 int numLines = model.getRowCount() + headerLines 
                                 + footerLines + 3;
@@ -80,7 +80,7 @@ public class Pagination implements Printable {
                 for (int i = 0; i < model.getRowCount(); i++){
                     fillLine(headerLines + 2 + i, i);   
                 }
-                buttomTable(headerLines + 2 + model.getRowCount());
+                buttomTable(headerLines + 1 + model.getRowCount());
             }
             printMatrix(textLines);
         }
@@ -121,7 +121,11 @@ public class Pagination implements Printable {
             for (int line=start; line<end; line++) {
                 y += lineHeight;
                 for (int c = 0; c < columns.length ; c++){
-                    g.drawString(textLines[line][c].toString(), 0 + columns[c], y);
+                    if(textLines[line][c] == null){
+                        g.drawString("", 0 + columns[c], y);
+                    }else{
+                        g.drawString(textLines[line][c].toString(), 0 + columns[c], y);
+                    }
                 }
             }
         }else{
@@ -167,12 +171,12 @@ public class Pagination implements Printable {
     }
 
     private void headerDocument(int par) {
-        textLines[1][0] = headerPrint.getTitleDocument();
-        textLines[1][2] = headerPrint.getInfoOperator();
-        textLines[2][0] = headerPrint.getOperatorName();
-        textLines[3][0] = headerPrint.getDate();
-        textLines[3][2] = headerPrint.getTime();
-        textLines[3][4] = headerPrint.getPageNumber();
+        textLines[1 + par][0] = headerPrint.getTitleDocument();
+        textLines[1 + par][2] = headerPrint.getInfoOperator();
+        textLines[2 + par][0] = headerPrint.getOperatorName();
+        textLines[3 + par][0] = headerPrint.getDate();
+        textLines[3 + par][2] = headerPrint.getTime();
+        textLines[3 + par][4] = headerPrint.getPageNumber();
     }
 
     private void buttomTable(int j) {
