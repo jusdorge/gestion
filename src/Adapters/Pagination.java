@@ -9,19 +9,22 @@ package Adapters;
  *
  * @author DELL
  */
+import CommerceApp.OperationWindow;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.awt.print.*;
 import javax.swing.table.TableModel;
+import util.FileProcess;
+import util.Operation;
 
 public class Pagination implements Printable {
     int [] columns ={10,25,250,280,310,340};
     String [] buttomTitles = {"TOTAL ", "VERSER ", "SOLDE ", "N.SOLDE "};
     int[] pageBreaks;  // array of page break line positions.
-    int entete = 3;
-    int pied = 4;
-    int nbrPage;
+    int headerLines = 3;
+    int footerLines = 4;
+    int pageCount;
     int titleLine;
     HeaderPrint headerPrint;
     /* Synthesise some sample lines of text */
@@ -32,48 +35,54 @@ public class Pagination implements Printable {
     
     public Pagination(TableModel m, int e, int p, HeaderPrint hp, String[] v){
         model = m;
-        entete = e;
-        pied = p;
+        headerLines = e;
+        footerLines = p;
         headerPrint = hp;
         buttomVariables = v;
         mode = v[4];
     }
     
-    private void initTextLines(int ppb) {
+    private void initTextLines(int linesPerPage) {
         if (textLines == null) {
 
-            if (model.getRowCount() > ppb){
-                nbrPage = (int)(model.getRowCount() - entete + pied) /
-                                   (ppb - entete);
-                int numLines = model.getRowCount() + 
-                                entete * (nbrPage - 1) +
-                                pied ;
-                textLines = new Object[numLines][columns.length];
-                headerDocument();
-                headerTable(entete+1);
-                int ii = 0;
-                int p = 1;
-                for (int i=0;i<numLines;i++) {
-                    if (((i > 2) || ((i % ppb) > 2)) && ( p < nbrPage)){
-                        fillLine(i,ii);
-                        ii += 1;
-                    }else if (p == nbrPage){
-                        //remplir l'entete
-                    }
-                    if (i %  ppb  == 0){
-                        p += 1;
+            if (model.getRowCount() > linesPerPage){
+                pageCount = model.getRowCount() /
+                                   (linesPerPage - headerLines);
+                int textLinesCount = model.getRowCount() + 
+                                headerLines * (pageCount + 1) +
+                                footerLines ;
+                System.out.println(textLinesCount);
+                textLines = new Object[textLinesCount][columns.length];
+                int numBreaks = (textLines.length-1)/linesPerPage;
+                pageBreaks = new int[numBreaks];
+                for (int b=0; b<numBreaks; b++) {
+                    pageBreaks[b] = (b+1)*linesPerPage; 
+                } 
+                int lineNumber = 0;
+                for (int pageIndex = 0; pageIndex < pageCount + 1; pageIndex++){
+                    int start = (pageIndex == 0) ? 0 : pageBreaks[pageIndex-1];
+                    int end   = (pageIndex == pageBreaks.length)    
+                             ? textLines.length : pageBreaks[pageIndex];                            
+                    headerDocument(start);
+                    headerTable(headerLines + 1 + start);
+                    
+                    for (int line=start + headerLines + 2; line<end; line++){
+                        fillLine(line,lineNumber);
+                        lineNumber += 1;
                     }
                 }
             }else{
-                int numLines = model.getRowCount() + entete + pied + 3;
+                int numLines = model.getRowCount() + headerLines 
+                                + footerLines + 3;
                 textLines = new Object[numLines][columns.length];
-                headerDocument();
-                headerTable(entete + 1);
+                headerDocument(0);
+                headerTable(headerLines + 1);
                 for (int i = 0; i < model.getRowCount(); i++){
-                    fillLine(entete + 2 + i, i);   
+                    fillLine(headerLines + 2 + i, i);   
                 }
-                buttomTable(entete + 2 + model.getRowCount());
+                buttomTable(headerLines + 2 + model.getRowCount());
             }
+            printMatrix(textLines);
         }
     }
 
@@ -87,13 +96,7 @@ public class Pagination implements Printable {
         int lineHeight = metrics.getHeight();
         int linesPerPage = (int)(pf.getImageableHeight()/lineHeight);
         if (pageBreaks == null) {
-            
             initTextLines(linesPerPage);
-            int numBreaks = (textLines.length-1)/linesPerPage;
-            pageBreaks = new int[numBreaks];
-            for (int b=0; b<numBreaks; b++) {
-                pageBreaks[b] = (b+1)*linesPerPage; 
-            }
         }
 
         if (pageIndex > pageBreaks.length) {
@@ -124,7 +127,7 @@ public class Pagination implements Printable {
         }else{
             for (int i = 0; i < textLines.length ;i++){
                 y += lineHeight;
-                if (i == entete + 1){
+                if (i == headerLines + 1){
                     g.drawLine(0, y + 2, (int)pf.getImageableWidth(), y + 2);
                     g.drawLine(0, y - lineHeight + 2, (int)pf.getImageableWidth(), y - lineHeight + 2);
                 }
@@ -136,18 +139,12 @@ public class Pagination implements Printable {
                     }
                 }
             }
-            g.drawLine(0, (model.getRowCount() + entete + 2) * lineHeight + 2,
+            g.drawLine(0, (model.getRowCount() + headerLines + 2) * lineHeight + 2,
                         (int)pf.getImageableWidth(), 
-                        (model.getRowCount() +  entete + 2) * lineHeight + 2);
+                        (model.getRowCount() +  headerLines + 2) * lineHeight + 2);
         }
         /* tell the caller that this page is part of the printed document */
         return PAGE_EXISTS;
-    }
-
-   
-
-    public static void main(String args[]) {
-
     }
 
     private void headerTable(int i) {
@@ -169,7 +166,7 @@ public class Pagination implements Printable {
         textLines[i][5] = "| " + model.getValueAt(ii, 4);
     }
 
-    private void headerDocument() {
+    private void headerDocument(int par) {
         textLines[1][0] = headerPrint.getTitleDocument();
         textLines[1][2] = headerPrint.getInfoOperator();
         textLines[2][0] = headerPrint.getOperatorName();
@@ -185,5 +182,29 @@ public class Pagination implements Printable {
             textLines[i + j][3] = buttomTitles[i];
             textLines[i + j][5] = buttomVariables[i];
         }
+    }
+    
+    private void printMatrix(Object [][] textLines){
+        for(int i = 0; i < textLines.length; i++){
+            System.out.print(i + "\t");
+            for (int j = 0; j < textLines[i].length; j++){
+                System.out.print(textLines[i][j] + "\t");
+            }
+            System.out.println();
+        }
+    }
+    
+    public static void main(String[] args){
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    int idOperation = 2758;
+                    OperationWindow f = new OperationWindow(
+                            new JDialog(),
+                            Operation.SELL,
+                            FileProcess.CONSULT,
+                            idOperation);
+                    f.print();
+                }
+        });
     }
 }
