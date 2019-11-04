@@ -50,7 +50,7 @@ public class Pagination implements Printable {
                                    (linesPerPage - headerLines);
                 int textLinesCount = model.getRowCount() + 
                                 headerLines * (pageCount + 1) +
-                                footerLines ;
+                                footerLines + 5;
                 textLines = new Object[textLinesCount][columns.length];
                 int numBreaks = (textLinesCount-1)/linesPerPage;
                 pageBreaks = new int[numBreaks];
@@ -61,15 +61,15 @@ public class Pagination implements Printable {
                 for (int pageIndex = 0; pageIndex < pageCount + 1; pageIndex++){
                     int start = (pageIndex == 0) ? 0 : pageBreaks[pageIndex-1];
                     int end   = (pageIndex == pageBreaks.length)    
-                             ? textLinesCount : pageBreaks[pageIndex];                            
+                             ? textLinesCount - 3 : pageBreaks[pageIndex];                            
                     headerDocument(start);
                     headerTable(headerLines + 1 + start);
-                    for (int line=start + headerLines + 2; line<end; line++){
+                    for (int line=start + headerLines + 3; line<end; line++){
                         fillLine(line-1,lineNumber);
                         lineNumber += 1;
                     }
                 }
-                //buttomTable(textLinesCount );
+                buttomTable(textLinesCount - 4 );
                 
             }else{
                 int numLines = model.getRowCount() + headerLines 
@@ -115,11 +115,16 @@ public class Pagination implements Printable {
          */
         int y = 0; 
         if (linesPerPage < model.getRowCount()){
+            //case model must be printed in several pages
             int start = (pageIndex == 0) ? 0 : pageBreaks[pageIndex-1];
             int end   = (pageIndex == pageBreaks.length)
                              ? textLines.length : pageBreaks[pageIndex];
             for (int line=start; line<end; line++) {
                 y += lineHeight;
+                if (line == headerLines + 1 + start){
+                    g.drawLine(0, y + 2, (int)pf.getImageableWidth(), y + 2);
+                    g.drawLine(0, y - lineHeight + 2, (int)pf.getImageableWidth(), y - lineHeight + 2);                    
+                }
                 for (int c = 0; c < columns.length ; c++){
                     if(textLines[line][c] == null){
                         g.drawString("", 0 + columns[c], y);
@@ -128,18 +133,23 @@ public class Pagination implements Printable {
                     }
                 }
             }
+            if (pageIndex == pageBreaks.length){
+                g.drawLine(0, y -(4 *lineHeight) + 2, 
+                    (int)pf.getImageableWidth(), y -(4 *lineHeight) + 2);
+            }
         }else{
-            for (int i = 0; i < textLines.length ;i++){
+            //case model is printed in one page
+            for (int line = 0; line < textLines.length ; line++){
                 y += lineHeight;
-                if (i == headerLines + 1){
+                if (line == headerLines + 1){
                     g.drawLine(0, y + 2, (int)pf.getImageableWidth(), y + 2);
                     g.drawLine(0, y - lineHeight + 2, (int)pf.getImageableWidth(), y - lineHeight + 2);
                 }
                 for (int c = 0; c < columns.length ; c++){
-                    if(textLines[i][c] == null){
+                    if(textLines[line][c] == null){
                         g.drawString("", 0 + columns[c], y);
                     }else{
-                        g.drawString(textLines[i][c].toString(), 0 + columns[c], y);
+                        g.drawString(textLines[line][c].toString(), 0 + columns[c], y);
                     }
                 }
             }
