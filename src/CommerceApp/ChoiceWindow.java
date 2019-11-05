@@ -75,7 +75,6 @@ public class ChoiceWindow extends javax.swing.JDialog {
         myTable.addKeyListener(new KeyAdapter(){
             public void keyPressed(KeyEvent e) {
                 int keyCode = e.getKeyCode();
-                result = new ArrayList<Object>();
                 // if Escape is not pressed process. else hide the choice view. 
                 if (keyCode != KeyEvent.VK_ESCAPE){
                     int viewRow = myTable.getSelectedRow();
@@ -86,20 +85,7 @@ public class ChoiceWindow extends javax.swing.JDialog {
                         // if Enter is pressed return the current row as the result.
                         if (keyCode == KeyEvent.VK_ENTER){
                             // returns the current choice to the object receiving the focus after this frame.
-                            switch (type){
-                                case PROVIDER:
-                                case CUSTOMER:
-                                        result.add(myTable.getValueAt(viewRow,0));
-                                        result.add(myTable.getValueAt(viewRow,1));
-                                break;
-                                case PRODUCT:
-                                case SELL_PRODUCT:
-                                case BUY_PRODUCT:
-                                        result.add(myTable.getValueAt(viewRow,0));
-                                        result.add(myTable.getValueAt(viewRow,1));
-                                        result.add(myTable.getValueAt(viewRow,2));
-                                break;
-                            }	
+                            returnResult(viewRow);
                             // affecter la valeur des colonnes à chercher a l'objet à retourner. 
                             setVisible(false);
                         }
@@ -109,12 +95,29 @@ public class ChoiceWindow extends javax.swing.JDialog {
                         result = null;
                         dispose();
                 }
-        }			
+            }			
         });
         myTable.changeSelection(0,0,false,false);
         myTable.setFillsViewportHeight(true);
     }
-
+    
+    private void returnResult(int viewRow) {
+        result = new ArrayList<Object>();
+        switch (type){
+            case PROVIDER:
+            case CUSTOMER:
+                    result.add(myTable.getValueAt(viewRow,0));
+                    result.add(myTable.getValueAt(viewRow,1));
+            break;
+            case PRODUCT:
+            case SELL_PRODUCT:
+            case BUY_PRODUCT:
+                    result.add(myTable.getValueAt(viewRow,0));
+                    result.add(myTable.getValueAt(viewRow,1));
+                    result.add(myTable.getValueAt(viewRow,2));
+            break;
+        }	
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -141,6 +144,11 @@ public class ChoiceWindow extends javax.swing.JDialog {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        myTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                myTableMouseClicked(evt);
+            }
+        });
         scrollPane.setViewportView(myTable);
 
         javax.swing.GroupLayout panelLayout = new javax.swing.GroupLayout(panel);
@@ -167,6 +175,15 @@ public class ChoiceWindow extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void myTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_myTableMouseClicked
+        if (evt.getClickCount() == 2){
+            result = new ArrayList<Object>();
+            int viewRow = myTable.getSelectedRow();
+            returnResult(viewRow);
+            setVisible(false);
+        }
+    }//GEN-LAST:event_myTableMouseClicked
 
     /**
      * @param args the command line arguments

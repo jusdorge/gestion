@@ -282,6 +282,11 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
             }
         });
 
+        textField.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                textFieldMouseClicked(evt);
+            }
+        });
         textField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 textFieldKeyPressed(evt);
@@ -298,6 +303,11 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
         table.setRowSelectionAllowed(false);
         table.setSelectionBackground(new java.awt.Color(255, 0, 0));
         table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableMouseClicked(evt);
+            }
+        });
         table.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 tableKeyPressed(evt);
@@ -724,6 +734,26 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
         }
     }//GEN-LAST:event_tableKeyPressed
 
+    private void textFieldMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textFieldMouseClicked
+        if (evt.getClickCount() == 2){
+            showClientChoice();
+        }
+    }//GEN-LAST:event_textFieldMouseClicked
+
+    private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
+        if (evt.getClickCount() == 2){
+            System.out.println("the mouse have been clicked");
+            int r = table.getSelectedRow();
+            int c = table.getSelectedColumn();         
+            if (c==0){
+                String productName = (String) table.getValueAt(r, c);
+                int y = scrollPane.getLocationOnScreen().y;
+                int x = scrollPane.getLocationOnScreen().x;
+                productChoice.show(x, y, 350, productName);	
+            }
+        }
+    }//GEN-LAST:event_tableMouseClicked
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JButton addButton;
     protected javax.swing.JButton annulerButton;
@@ -1004,8 +1034,7 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
                         productDoesNotExist(productName)){
                 titleFrameHeight = this.getHeight() - contentPane.getHeight();
                 int y = scrollPane.getLocationOnScreen().y;
-                int x = table.getLocationOnScreen().x;
-                int width = table.getColumnModel().getColumn(0).getWidth();
+                int x = scrollPane.getLocationOnScreen().x;
                 productChoice.show(x, y, 350, productName);		
             }else{
                 tableStopEditing();
