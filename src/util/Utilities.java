@@ -24,17 +24,21 @@ import javax.swing.JFrame;
     public static final String URL_C = "jdbc:mysql://localhost:3306/b4";
     public static final String URL_TEST = "jdbc:mysql://localhost:3306/mysql";
     //Constants for default fonts
-    static final String DEFAULT_FONT_NAME = "Tahoma";
-    static final int DEFAULT_FONT_SIZE = 9;
-    static final int DEFAULT_FONT_TYPE = Font.PLAIN;
+    public static final String DEFAULT_FONT_NAME = "Tahoma";
+    public static final int DEFAULT_FONT_SIZE = 9;
+    public static final int DEFAULT_FONT_TYPE = Font.PLAIN;
     // Constants for table font's.
-    static final String HEAD_FONT_NAME = "Times new roman";
-    static final int HEAD_FONT_SIZE = 24;
-    static final int HEAD_FONT_TYPE = Font.BOLD;
-    static final String TABLE_FONT_NAME = "Times new roman";
-    static final int TABLE_FONT_SIZE = 24;
-    static final int TABLE_FONT_TYPE = Font.PLAIN;
-
+    public static final String HEAD_FONT_NAME = "Times new roman";
+    public static final int HEAD_FONT_SIZE = 24;
+    public static final int HEAD_FONT_TYPE = Font.BOLD;
+    public static final String TABLE_FONT_NAME = "Times new roman";
+    public static final int TABLE_FONT_SIZE = 24;
+    public static final int TABLE_FONT_TYPE = Font.PLAIN;
+    // Constants for printing Fonts
+    public static final String PRINTING_FONT_NAME = "Serif";
+    public static final int PRINTING_FONT_SIZE = 10;
+    public static final int PRINTING_FONT_TYPE = Font.PLAIN;
+    public static final int PRINTING_FONT_TITLES_TYPE = Font.BOLD;
     //titleLabel constants.
     static final String TITLE_LABEL_FONT_NAME = "ARIAL";
     static final int TITLE_LABEL_FONT_SIZE = 50;

@@ -17,9 +17,11 @@ import java.awt.print.*;
 import javax.swing.table.TableModel;
 import util.FileProcess;
 import util.Operation;
+import util.Utilities;
 
 public class Pagination implements Printable {
-    int [] columns ={10,25,250,280,310,340};
+    int width = (Utilities.PRINTING_FONT_SIZE - 8) * 5;
+    int [] columns ={10,25,250 - width * 2,280 - width,310 ,340 + width};
     String [] buttomTitles = {"TOTAL ", "VERSER ", "SOLDE ", "N.SOLDE "};
     int[] pageBreaks;  // array of page break line positions.
     int headerLines = 3;
@@ -75,12 +77,18 @@ public class Pagination implements Printable {
                 int numLines = model.getRowCount() + headerLines 
                                 + footerLines + 3;
                 textLines = new Object[numLines][columns.length];
+                int numBreaks = (numLines)/linesPerPage;
+                pageBreaks = new int[numBreaks];
+                for (int b=0; b<numBreaks; b++) {
+                    pageBreaks[b] = (b+1)*linesPerPage; 
+                } 
+
                 headerDocument(0);
                 headerTable(headerLines + 1);
                 for (int i = 0; i < model.getRowCount(); i++){
                     fillLine(headerLines + 2 + i, i);   
                 }
-                buttomTable(headerLines + 1 + model.getRowCount());
+                buttomTable(headerLines + 2 + model.getRowCount());
             }
             printMatrix(textLines);
         }
@@ -89,7 +97,9 @@ public class Pagination implements Printable {
     public int print(Graphics g, PageFormat pf, int pageIndex)
              throws PrinterException {
 
-        Font font = new Font("Serif", Font.PLAIN, 8);
+        Font font = new Font(Utilities.PRINTING_FONT_NAME,
+                            Utilities.PRINTING_FONT_TYPE,
+                            Utilities.PRINTING_FONT_SIZE);
         g.setFont(font);
         FontMetrics metrics = g.getFontMetrics(font);
         
