@@ -62,6 +62,7 @@ import objects.MyTableModel;
 import objects.TableProduct;
 import objects.DoubleRenderer;
 import objects.IntegerRenderer;
+import objects.Product;
 import objects.TFEditor;
 import objects.TableModelDetail;
 import objects.Validation;
@@ -105,11 +106,10 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
     private int titleFrameHeight;
     private Container contentPane;
     private int row;
-    private String headRecord1,headRecord2;
-    private ArrayList buttomRecords1,buttomRecords2;
     private double newCredit;
     private Object idVersement;
     private String f;
+    private RecordOperation ro;
     
     /**
      * constructeur de la classe operation window 
@@ -303,11 +303,6 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
         table.setRowSelectionAllowed(false);
         table.setSelectionBackground(new java.awt.Color(255, 0, 0));
         table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        table.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tableMouseClicked(evt);
-            }
-        });
         table.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 tableKeyPressed(evt);
@@ -627,12 +622,17 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
             result = clientChoice.getResult(); 
             try{
                 if (result.size() != 0){
-                                table.setFocusable(true);
-                                textField.setText((String)result.get(0));
-                                customerSolde = (BigDecimal) result.get(1);
-                                fillSoldeTextField();
-                                fillLastVisitTextField();
-                                table.requestFocusInWindow(); 
+                    table.setFocusable(true);
+                    textField.setText((String)result.get(0));
+                    customerSolde = (BigDecimal) result.get(1);
+                    fillSoldeTextField();
+                    fillLastVisitTextField();
+                    table.requestFocusInWindow(); 
+                    //record the head of the operation
+                    head = new Header(arrayListHeader());
+                    //creating the buttom of the operation
+                    ro = new RecordOperation(TAB,OPE,head,table.getModel());
+                    ro.record_head();
                 }
                 formatResultTable(evt);  
             }catch(NullPointerException ex){
@@ -641,8 +641,14 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
             result  = new ArrayList();
             result.add(textField.getText());
             if (result.size() != 0){
-                                table.setFocusable(true);
-                                table.requestFocusInWindow(); 
+                table.setFocusable(true);
+                table.requestFocusInWindow(); 
+                //record the operation head in the corresponding
+                //table
+                head = new Header(arrayListHeader());
+                //creating the buttom of the operation
+                ro = new RecordOperation(TAB,OPE,head,table.getModel());
+                ro.record_head();                                
             }
             formatResultTable(evt);  
         }		
@@ -739,20 +745,6 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
             showClientChoice();
         }
     }//GEN-LAST:event_textFieldMouseClicked
-
-    private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
-        if (evt.getClickCount() == 2){
-            System.out.println("the mouse have been clicked");
-            int r = table.getSelectedRow();
-            int c = table.getSelectedColumn();         
-            if (c==0){
-                String productName = (String) table.getValueAt(r, c);
-                int y = scrollPane.getLocationOnScreen().y;
-                int x = scrollPane.getLocationOnScreen().x;
-                productChoice.show(x, y, 350, productName);	
-            }
-        }
-    }//GEN-LAST:event_tableMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JButton addButton;
@@ -1001,15 +993,20 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
     public void tableChanged(TableModelEvent e) {
         int column = e.getColumn();
         if ((column > 0)||(column < 4)){
-                MyTableModel model = (MyTableModel)table.getModel();
-                Double sum = model.getSum();
-                String somme = sum.toString();
-                if (sum != 0.0){
-                    totalTextField.setText(somme);
-                    if (DoubleAdapter.isFormatable(sum)){
-                        totalTextField.setText(DoubleAdapter.getFormatToString());
-                    }
+            MyTableModel model = (MyTableModel)table.getModel();
+            Double sum = model.getSum();
+            String somme = sum.toString();
+            if (sum != 0.0){
+                totalTextField.setText(somme);
+                if (DoubleAdapter.isFormatable(sum)){
+                    totalTextField.setText(DoubleAdapter.getFormatToString());
                 }
+            }
+            //recording the update of the buttom of the operation
+            //in the corresponding table
+            if (!table.getValueAt(table.getSelectedRow(),0).equals("")){
+                recordButtom();
+            }
         }  
     }
     
@@ -1226,11 +1223,12 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
         SwingUtilities.invokeLater(new Runnable(){
             @Override
             public void run() {
-                head = new Header(arrayListHeader());
-                //creating the buttom of the operation
-                RecordOperation ro = new RecordOperation(TAB,OPE,head,table.getModel());
-                ro.record_head();
-                ro.recordAllButtoms();
+                //this operation is moved to the gained focus event
+//                head = new Header(arrayListHeader());
+//                //creating the buttom of the operation
+//                RecordOperation ro = new RecordOperation(TAB,OPE,head,table.getModel());
+//                ro.record_head();
+//                ro.recordAllButtoms();
             }
         });
     }
@@ -1612,6 +1610,21 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
             );
         return r;
     }    
+
+    private void recordButtom() {
+            ArrayList l = new ArrayList();
+            Product p = new Product(table.getValueAt(table.getSelectedRow(), 0));
+            l.add(0, numeroLabel.getText().substring(2)); //----ida
+            l.add(1, p.getId());//------idp
+            l.add(2,0);//---------------tva
+            l.add(3, table.getValueAt(table.getSelectedRow(), 1));//-----qtea
+            l.add(4, table.getValueAt(table.getSelectedRow(), 2));//-----qtua
+            l.add(5, table.getValueAt(table.getSelectedRow(), 3));//----prixa
+            l.add(6, p.getStock());//---st
+            l.add(7,1);//---idd
+            Buttom buttom = new Buttom(l);
+            ro.recordButtom(buttom);
+    }
 
     /**
      * inner class that handels list selection events

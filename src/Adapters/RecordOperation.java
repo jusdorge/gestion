@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.table.TableModel;
+import objects.Product;
 import util.FileProcess;
 
 /**
@@ -182,6 +183,19 @@ public class RecordOperation {
         }   
     }
     
+    public void recordButtom(Buttom b){
+            JDBCAdapter record_buttom = JDBCAdapter.connect();
+            if (ope == 1){
+                record_buttom.executeQuery(getRecordButtomString(b));
+            }else{
+                record_buttom.executeUpdate(getRecordButtomString(b));
+            }
+            System.out.println(getRecordButtomString(b));
+            if (record_buttom.getUpdateError())
+                System.err.println(record_buttom.getErrorMessage() + 
+                        record_buttom.getErrorCause());       
+    }
+    
     private Object getQtea(int i){
         return m.getValueAt(i, 1);
     }
@@ -190,29 +204,5 @@ public class RecordOperation {
     }
     private Object getPrixa(int i){
         return m.getValueAt(i, 3);
-    }
-/**
- * BENHADDOU MOHAMED AMINE
- * une classe pour l'extraction de l'id et le stock 
- * de la table produit 
- */
-    class Product{
-        private Object id;
-        private Object stock;
-        JDBCAdapter look;
-        
-        public Product(Object des){
-            look = JDBCAdapter.connect();
-            String sql ="SELECT idp, stock FROM produit WHERE desig ='" + des +"'";
-            look.executeQuery(sql);
-            id = look.getValueAt(0, 0);
-            stock = look.getValueAt(0, 1);
-        }
-        public Object getId(){
-            return id;
-        }
-        public Object getStock(){
-            return stock;
-        }
     }
 }
