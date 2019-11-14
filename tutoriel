@@ -1,3 +1,6 @@
 Ce document se doit d'être un guide pratique pour l'utilisation de git; un gestionnaire de version 
 par exellence. certe, qu'il produit le même resultat attendu par d'autre cvs comme mercurial subversion,
-mais il a le mértie d'être 
+mais il a le mértie d'être plus efficace et d'une robustesse sans égale chez les autres systemes.
+son principe repose sur les revisions effecuter par l'utilisateur en les enregistrants comme des
+snapshot. c'est à dire, une vue ensemble des fichiers et non pas comme des differences entre les 
+fichier récents et anciens
