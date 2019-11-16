@@ -1230,7 +1230,11 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
                 //creating the buttom of the operation
                 RecordOperation ro = new RecordOperation(TAB,OPE,head,table.getModel());
                 ro.record_head();
-                ro.recordAllButtoms();
+                try {
+                    ro.recordAllButtoms();
+                } catch (SQLException ex) {
+                    Logger.getLogger(OperationWindow.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -1409,7 +1413,11 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
                 //creating the buttom of the operation
                 RecordOperation ro = new RecordOperation(TAB,OPE,head,table.getModel());
                 ro.record_head();
-                ro.recordAllButtoms();   
+                try {   
+                    ro.recordAllButtoms();
+                } catch (SQLException ex) {
+                    Logger.getLogger(OperationWindow.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -1456,7 +1464,11 @@ public class OperationWindow extends javax.swing.JDialog implements KeyListener,
                 head = new Header(arrayListHeader());
                 RecordOperation ro = new RecordOperation(TAB,1,head,table.getModel());
                 System.out.println("Enregistrement...");
-                ro.recordAllButtoms();           
+                try {           
+                    ro.recordAllButtoms();
+                } catch (SQLException ex) {
+                    Logger.getLogger(OperationWindow.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 if (mode.equals("VERSEMENT")){
                     RecordPayment rv = getRecordVersement();
                     rv.recordPayment();
