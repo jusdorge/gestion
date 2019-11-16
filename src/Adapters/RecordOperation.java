@@ -155,7 +155,7 @@ public class RecordOperation {
                     record_buttom.getErrorCause());
     }
     
-    public void recordAllButtoms(){
+    public void recordAllButtoms() throws SQLException{
         for (int i = 0; i < m.getRowCount(); i++){
             ArrayList l = new ArrayList();
             Product p = new Product(m.getValueAt(i, 0));
@@ -179,6 +179,7 @@ public class RecordOperation {
             if (record_buttom.getUpdateError())
                 System.err.println(record_buttom.getErrorMessage() + 
                         record_buttom.getErrorCause());
+            record_buttom.close();
         }   
     }
     

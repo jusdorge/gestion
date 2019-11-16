@@ -301,6 +301,7 @@ public class RestoreOperationDialog extends javax.swing.JDialog {
                     + "FROM supp"+operation.getTableName() 
                     + " WHERE IDA="+ row + " GROUP BY IDA";
         JDBCAdapter secondQuery = JDBCAdapter.connect();
+        System.out.println(result_sql);
         secondQuery.executeQuery(result_sql);
         String sql = "INSERT INTO " + operation.getTableName() 
                         + " SET IDA=" + ida
